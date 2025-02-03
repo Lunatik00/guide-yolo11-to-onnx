@@ -1,0 +1,5 @@
+.devenv/
+**/.venv/
+**/.ipynb_checkpoints/
+**/build/
+**/runs/
