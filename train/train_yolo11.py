@@ -35,6 +35,7 @@ def main():
         name="yolo11n",
         profile=True,
         plots=True,
+        exist_ok=True,  # This makes it so the training will be overriden if done more than once
     )
 
 
