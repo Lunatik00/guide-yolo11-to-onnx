@@ -226,4 +226,122 @@ int main(int argc, char* argv[])
     std::string modelFilepath = program.get<std::string>("onnx_file");
     std::string imageFilepath = program.get<std::string>("image");
 
+    // Set some onnx environment values
+    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                 instanceName.c_str());
+    // Prepare session options for inference
+    Ort::SessionOptions sessionOptions;
+    sessionOptions.SetIntraOpNumThreads(1);
+    // Add some optimizations
+    sessionOptions.SetGraphOptimizationLevel(
+        GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+    // Start onnx session
+    Ort::Session session(env, modelFilepath.c_str(), sessionOptions);
+
+    // create allocator to retrive data
+    Ort::AllocatorWithDefaultOptions allocator;
+
+    size_t numInputNodes = session.GetInputCount();
+    size_t numOutputNodes = session.GetOutputCount();
+
+    // Get input name, it is retrieved as a string but changed to char* because the char* is required for inference
+    const std::string _inputName = session.GetInputNameAllocated(0, allocator).get();
+    const char* inputName= _inputName.c_str();
+    // std::cout << "Input Name: " << inputName << std::endl;
+
+    Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+    auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    ONNXTensorElementDataType inputType = inputTensorInfo.GetElementType();
+    //std::cout << "Input Type: " << inputType << std::endl;
+
+    // Get inputs dimensions IMPORTANT: if the model has variable inputs the use of 
+    // this data should be examinated because the default values will give an error
+    std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
+    std::cout << "Input Dimensions: " << inputDims << std::endl;
+
+    // Repeat the process for the output
+    const std::string _outputName = session.GetOutputNameAllocated(0, allocator).get();
+    const char* outputName= _outputName.c_str();
+    std::cout << "Output Name: " << outputName << std::endl;
+
+    Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
+    auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    ONNXTensorElementDataType outputType = outputTensorInfo.GetElementType();
+    //std::cout << "Output Type: " << outputType << std::endl;
+
+    // Get output dimensions IMPORTANT: if the model has variable input the use of 
+    // this data should be examinated because the default values will give an error.
+    // Even when the output should be fixed even for variable inputs
+    std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
+    std::cout << "Output Dimensions: " << outputDims << std::endl;
+
+
+    // open image and prepare it for inference
+    cv::Mat imageBGR = cv::imread(imageFilepath, cv::ImreadModes::IMREAD_COLOR);
+    cv::Mat preprocessedImage;
+    cv::Mat resizedImage = static_resize(imageBGR);
+    cv::dnn::blobFromImage(resizedImage, preprocessedImage);
+
+    size_t inputTensorSize = vectorProduct(inputDims);
+    // std::cout << "inputTensorSize: " << inputTensorSize << std::endl;
+    // IMPORTANT: This is where it fails if the input values are variable, 
+    // seek another way to create the vector that will not have this problem
+    std::vector<float> inputTensorValues(inputTensorSize);
+    inputTensorValues.assign(preprocessedImage.begin<float>(),
+                             preprocessedImage.end<float>());
+
+    size_t outputTensorSize = vectorProduct(outputDims);
+    std::vector<float> outputTensorValues(outputTensorSize);
+
+    // Prepare variables for inference
+    std::vector<const char*> inputNames{inputName};
+    std::vector<const char*> outputNames{outputName};
+    std::vector<Ort::Value> inputTensors;
+    std::vector<Ort::Value> outputTensors;
+
+    Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(
+        OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+    // Assign data for input
+    inputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, inputTensorValues.data(), inputTensorSize, inputDims.data(),
+        inputDims.size()));
+    // Finish preparations for output
+    outputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, outputTensorValues.data(), outputTensorSize,
+        outputDims.data(), outputDims.size()));
+
+    // Run inference
+    session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
+                inputTensors.data(), 1, outputNames.data(),
+                outputTensors.data(), 1);
+
+    // Sort results
+    std::vector<Results> output_onnx = sort_onnx_nms_output(outputTensorValues,BBOX_CONF_THRESH);
+    // std::cout << "response: " << output_onnx.size()<< std::endl;
+
+    // Open image to show inference
+    cv::Mat image = imread_t(imageFilepath);
+    // Select a color to use for bounding box in BGR UINT8
+    const cv::Scalar color = cv::Scalar(255, 0, 0);
+    const int thickness = 5; 
+    // Iterate over the result vector
+    for (int i = 0; i <  output_onnx.size(); i++)
+    {
+        // Scale xy values and cast them to uint8
+        int x1 = static_cast<int>(output_onnx[i].x1 * (image.cols*1.0)) ;
+        int y1 = static_cast<int>(output_onnx[i].y1 * (image.rows*1.0)) ;
+        int x2 = static_cast<int>(output_onnx[i].x2 * (image.cols*1.0)) ;
+        int y2 = static_cast<int>(output_onnx[i].y2 * (image.rows*1.0)) ;
+        // Create points
+        cv::Point p1(x1,y1);
+        cv::Point p2(x2,y2);
+        // Draw bounding box
+        cv::rectangle(image, p1, p2, 
+              color, 
+              thickness);
+    }
+    // Save image
+    cv::imwrite("pills-out.jpg",image);
 }
