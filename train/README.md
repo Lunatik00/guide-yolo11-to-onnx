@@ -30,6 +30,8 @@ To export the model to ONNX you will use the script `export.py`, this script wil
 
 To run the export you will use `uv run export.py medical_pills/yolo11n/weights/best.pt`, this script will take the model and export it to ONNX, the output is a file called `best.onnx` and will be found alongside the input file.
 
+IMPORTANT: There is an error because the dependency `onnxruntime` is covered with `onnxruntime-gpu` and there is no `onnxruntime` installed, this is a bug on the `ultralitics` library, the model does export without problems.
+
 # AFTER EXPORTING THE MODEL
 
 We are done with the part of the project that uses Python, now we will start the C++ part of the project, to make it easier I recomend to make a copy of the model to have it in the same folder as the C++ code for easy access, but it is not required. You can use the `inference.py` script if you want to visualize the results of the model, it is a simple script that uses the ultralitics library alongside onnx to load the model and process an image, the results are saved in the `medical_pills` folder.
