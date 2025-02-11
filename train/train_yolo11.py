@@ -1,5 +1,5 @@
-from urllib.request import urlretrieve
 from pathlib import Path
+import requests
 
 from ultralytics import YOLO
 
@@ -10,7 +10,13 @@ def get_YOLO11n() -> str:
         "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt"
     )
     if not Path(model_file).exists():
-        urlretrieve(model_url, model_file)
+        response = requests.get(model_url) 
+        if response.status_code == 200:
+            with open(model_file, 'wb') as file:
+                file.write(response.content)
+        else:
+            raise Exception(f"Could not download model, check your internet connection or download manually at the url: {model_url}")
+
     return model_file
 
 
