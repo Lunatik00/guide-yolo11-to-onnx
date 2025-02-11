@@ -20,7 +20,7 @@ In general, the GPU compatible binaries are also compatible with CPU, that is wh
 
 # STEP BY STEP
 
-The first step is to enter the shell, using the command `nix-shell` within the training folder will start a shell containing the correct cuda versions for this project and the `uv` package to manage it
+The first step is to enter the shell, using the command `nix-shell` within the training folder will start a shell containing the correct cuda versions for this project and the `uv` package to manage it you might need to allow unfree packages if you haven't done it yet, just follow the instructions in the error message if that happens.
 
 To run a traing you just need to type `uv run train_yolo11.py`, this Python script will download the pretrained model `yolo11n.pt` and start the trainig process, this training process will look at the file `medical-pills.yaml`, this file defines the dataset and it has the link to download it, which will be done before training starts. This and other YAML files can be found in the ultralitics page, I suggest to read them to fully understand how to adapt a custom dataset to be used here, specially the SKU110K dataset because it has a custom script about what to do with the data after download to comply with the format requirements for this training process.
 

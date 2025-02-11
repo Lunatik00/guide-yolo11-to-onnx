@@ -11,7 +11,6 @@ let
     libuv
     zlib];
 in pkgs.mkShell {
-  allowUnfree = true;
   env = {
     LD_LIBRARY_PATH = "${
       with pkgs;
