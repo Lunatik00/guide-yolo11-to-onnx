@@ -6,6 +6,7 @@ project(onnx_c++)
 
 find_package(OpenCV REQUIRED)
 find_package(onnxruntime REQUIRED)
+find_package(argparse REQUIRED)
 
 # Source files
 set(SOURCES
