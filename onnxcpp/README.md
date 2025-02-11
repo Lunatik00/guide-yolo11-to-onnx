@@ -41,8 +41,11 @@ $ nix-build container.nix && ./result | podman load
 This will create a container with all the dependencies needed to run the code.
 
 # SOURCES
-
+- https://leimao.github.io/blog/ONNX-Runtime-CPP-Inference/
 - https://github.com/K4HVH/YOLOv11-ONNXRuntime-CPP
 - https://github.com/NixOS/nixpkgs/blob/226be8a519e18880e5ddf218368780748f6d6677/pkgs/build-support/docker/examples.nix#L735
 - https://discourse.nixos.org/t/create-docker-container-from-nix-shell/17441/6
+
+This source was the main one that I modified for the current code, it had some differences:
+- https://github.com/Neuralearn/onnx_cplusplus/blob/main/main.cpp
 
