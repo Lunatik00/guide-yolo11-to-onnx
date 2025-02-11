@@ -68,55 +68,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
     return os;
 }
 
-
-cv::Mat static_resize(cv::Mat& img) {
-    // YOLO11 needs the image to be RGB with float values between 0 and 1
-    cv::Mat img_rgb;
-    cv::cvtColor(img,img_rgb,cv::COLOR_BGR2RGB );
-    cv::Mat img_rezised;
-    cv::resize(img_rgb,img_rezised,cv::Size(INPUT_H,INPUT_W));
-    cv::Mat out;
-    img_rezised.convertTo(out, CV_32F);
-    return out/255;
-}
-
-struct Results
-{
-    float x1;
-    float y1;
-    float x2;
-    float y2;
-    int label;
-    float prob;
-};
-
-std::vector<Results> sort_onnx_nms_output(std::vector<float> onnx_output_values,float prob_threshold)
-{
-    std::vector<Results> out;
-    const int n_outputs = onnx_output_values.size()/6;
-    for (int i = 0; i < n_outputs; i++)
-    {
-        int ix1 = i*6;
-        int iy1 = i*6 +1;
-        int ix2 = i*6 +2;
-        int iy2 = i*6 +3;
-        int iprob = i*6+4;
-        int ilabel = i*6+5;
-        if (onnx_output_values[iprob]>=prob_threshold && isfinite(onnx_output_values[iprob]))
-        {
-            Results element;
-            element.x1 = onnx_output_values[ix1]/INPUT_W;
-            element.x2 = onnx_output_values[ix2]/INPUT_W;
-            element.y1 = onnx_output_values[iy1]/INPUT_H;
-            element.y2 = onnx_output_values[iy2]/INPUT_H;
-            element.prob = onnx_output_values[iprob];
-            element.label = onnx_output_values[ilabel];
-            out.push_back(element);
-        }
-    }
-    return out;
-}
-
 /**
  * @brief Print ONNX tensor data type
  * https://github.com/microsoft/onnxruntime/blob/rel-1.6.0/include/onnxruntime/core/session/onnxruntime_c_api.h#L93
@@ -187,6 +138,56 @@ std::ostream& operator<<(std::ostream& os,
 
     return os;
 }
+
+
+cv::Mat static_resize(cv::Mat& img) {
+    // YOLO11 needs the image to be RGB with float values between 0 and 1
+    cv::Mat img_rgb;
+    cv::cvtColor(img,img_rgb,cv::COLOR_BGR2RGB );
+    cv::Mat img_rezised;
+    cv::resize(img_rgb,img_rezised,cv::Size(INPUT_H,INPUT_W));
+    cv::Mat out;
+    img_rezised.convertTo(out, CV_32F);
+    return out/255;
+}
+
+struct Results
+{
+    float x1;
+    float y1;
+    float x2;
+    float y2;
+    int label;
+    float prob;
+};
+
+std::vector<Results> sort_onnx_nms_output(std::vector<float> onnx_output_values,float prob_threshold)
+{
+    std::vector<Results> out;
+    const int n_outputs = onnx_output_values.size()/6;
+    for (int i = 0; i < n_outputs; i++)
+    {
+        int ix1 = i*6;
+        int iy1 = i*6 +1;
+        int ix2 = i*6 +2;
+        int iy2 = i*6 +3;
+        int iprob = i*6+4;
+        int ilabel = i*6+5;
+        if (onnx_output_values[iprob]>=prob_threshold && isfinite(onnx_output_values[iprob]))
+        {
+            Results element;
+            element.x1 = onnx_output_values[ix1]/INPUT_W;
+            element.x2 = onnx_output_values[ix2]/INPUT_W;
+            element.y1 = onnx_output_values[iy1]/INPUT_H;
+            element.y2 = onnx_output_values[iy2]/INPUT_H;
+            element.prob = onnx_output_values[iprob];
+            element.label = onnx_output_values[ilabel];
+            out.push_back(element);
+        }
+    }
+    return out;
+}
+
 
 
 
