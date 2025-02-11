@@ -16,6 +16,17 @@ The use of `nix-shell` can make specific CUDA versions available directly, this 
 
 The rest of the info there is a README file for training and another for the C++ implementation
 
+# KEY LEARNINGS AND SKILLS SHOWN IN THIS REPO
+
+- The use of `nix-shell` with a specific cuda version.
+- Training with `ultralytics` and exporting the model to `onnx`.
+- The use of `onnxruntime` alongside C++.
+- The use of `cmake` and `make` to compile C++ code.
+- The use of nix to create a container, although simple this shows the potential to use it for deployment on web environments.
+- How to create a package using nix and how to use it in a shell or containerized environment.
+- The use of `uv` to manage python packages.
+- Some specific details about YOLO11, mainly the format of the image used by it when used with ONNX.
+
 # Sources
 
 - https://docs.ultralytics.com/datasets/detect/sku-110k/
