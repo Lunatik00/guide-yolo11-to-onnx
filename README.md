@@ -30,7 +30,8 @@ The extra info is in a README file for training and another for the C++ implemen
 
 # NOTE
 
-About the usage of `nix`, tis was developed using the `https://nixos.org/channels/nixos-unstable` channel, at the time of development it was the beta for the `25.05` release. This is in case of incompatibility with future releases, this can be solved using `flakes`, that provide the most stable way to reproduce a development environment as it pins the versions of everything, this is not done by `nix-shell` alone, `nix-shell` pins the versions to when the environment was created localy, so there is improvement to be made in that area, this will be part of my next learning project.
+About the usage of `nix`, this was developed using the `https://nixos.org/channels/nixos-unstable` channel, at the time of development it was the beta for the `25.05` release. This is in case of incompatibility with future releases.
+The reproducibility can be improved using `flakes`, that provide the most stable way to reproduce a development environment as it pins the versions of everything, this is not done by `nix-shell` alone, `nix-shell` pins the versions to when the environment was created localy, so there is improvement to be made in that area, this will be part of my next learning project.
 
 # Sources
 
