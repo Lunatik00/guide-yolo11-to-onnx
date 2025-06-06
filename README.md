@@ -14,18 +14,23 @@ The use of `nix-shell` can make specific CUDA versions available directly, this 
 
 # EXTRA
 
-The rest of the info there is a README file for training and another for the C++ implementation
+The extra info is in a README file for training and another for the C++ implementation (one README per folder)
 
 # KEY LEARNINGS AND SKILLS SHOWN IN THIS REPO
 
 - The use of `nix-shell` with a specific cuda version.
 - Training with `ultralytics` and exporting the model to `onnx`.
 - The use of `onnxruntime` alongside C++.
-- The use of `cmake` and `make` to compile C++ code.
-- The use of nix to create a container, although simple this shows the potential to use it for deployment on web environments.
-- How to create a package using nix and how to use it in a shell or containerized environment.
+- The use of `cmake` and `make` to compile C++ code with `nix` to create a package.
+- The use of `nix` to create a container, although simple this shows the potential to use it for deployment on web environments.
+- How to create a package using `nix` and how to use it in a shell or containerized environment.
 - The use of `uv` to manage python packages.
 - Some specific details about YOLO11, mainly the format of the image used by it when used with ONNX.
+- The usage of CUDA tools within `nix`, in particular, the use of older versions os cuda within a system that has newer versions installed, reducing the overhead that other methods would have (like using containers) without impacting the parent system (like what installing multiple version in the main system would do).
+
+# NOTE
+
+About the usage of `nix`, tis was developed using the `https://nixos.org/channels/nixos-unstable` channel, at the time of development it was the beta for the `25.05` release. This is in case of incompatibility with future releases, this can be solved using `flakes`, that provide the most stable way to reproduce a development environment as it pins the versions of everything, this is not done by `nix-shell` alone, `nix-shell` pins the versions to when the environment was created localy, so there is improvement to be made in that area, this will be part of my next learning project.
 
 # Sources
 
